@@ -64,7 +64,7 @@ export const authApi = {
 
 export const linkApi = {
   // Add a new link
-  addLink: async (url: string, source: 'telegram' | 'web' = 'web'): Promise<Link> => {
+  addLink: async (url: string, source: 'telegram' | 'web' | 'pwa-share' = 'web'): Promise<Link> => {
     const response = await api.post<ApiResponse<Link>>('/links', { url, source });
     return response.data.data!;
   },

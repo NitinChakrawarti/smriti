@@ -89,8 +89,8 @@ export default function AddLinkModal() {
         <div className="px-6 py-5 border-b border-white/10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl border border-primary/30">
-                <Sparkles className="w-5 h-5 text-primary" />
+              <div className="p-2.5 bg-gradient-to-br from-brand-blue/20 to-secondary/20 rounded-xl border border-secondary/30">
+                <Sparkles className="w-5 h-5 text-secondary" />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">Add Content</h2>
@@ -115,7 +115,7 @@ export default function AddLinkModal() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     activeTab === tab.id
-                      ? 'bg-gradient-to-r from-primary/20 to-secondary/20 text-white border border-primary/30 shadow-lg shadow-primary/10'
+                      ? 'bg-gradient-to-r from-brand-blue/20 to-secondary/20 text-white border border-secondary/30 shadow-lg shadow-secondary/10'
                       : 'bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-white'
                   }`}
                 >
@@ -142,32 +142,32 @@ export default function AddLinkModal() {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://example.com/article"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all placeholder:text-muted-foreground"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary/50 transition-all placeholder:text-muted-foreground"
                   disabled={loading}
                   autoFocus
                 />
               </div>
 
-              <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl p-4 border border-primary/20">
+              <div className="bg-gradient-to-br from-brand-blue/10 to-secondary/10 rounded-xl p-4 border border-secondary/20">
                 <div className="flex items-start gap-3">
-                  <Sparkles className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <Sparkles className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
                   <div className="text-sm">
                     <p className="text-white/90 font-medium mb-2">AI will automatically:</p>
                     <ul className="space-y-1 text-muted-foreground">
                       <li className="flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-primary"></span>
+                        <span className="w-1 h-1 rounded-full bg-secondary"></span>
                         Generate intelligent summary
                       </li>
                       <li className="flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-primary"></span>
+                        <span className="w-1 h-1 rounded-full bg-secondary"></span>
                         Extract relevant tags
                       </li>
                       <li className="flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-primary"></span>
+                        <span className="w-1 h-1 rounded-full bg-secondary"></span>
                         Classify category
                       </li>
                       <li className="flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-primary"></span>
+                        <span className="w-1 h-1 rounded-full bg-secondary"></span>
                         Fetch metadata & thumbnail
                       </li>
                     </ul>
@@ -190,15 +190,15 @@ export default function AddLinkModal() {
                   onChange={(e) => setText(e.target.value)}
                   placeholder="Paste or type your content here..."
                   rows={8}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all placeholder:text-muted-foreground resize-none"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary/50 transition-all placeholder:text-muted-foreground resize-none"
                   disabled={loading}
                   autoFocus
                 />
               </div>
 
-              <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl p-4 border border-primary/20">
+              <div className="bg-gradient-to-br from-brand-blue/10 to-secondary/10 rounded-xl p-4 border border-secondary/20">
                 <p className="text-sm text-white/90">
-                  <Sparkles className="w-4 h-4 text-primary inline mr-2" />
+                  <Sparkles className="w-4 h-4 text-secondary inline mr-2" />
                   AI will analyze your text and create a structured knowledge entry
                 </p>
               </div>
@@ -257,7 +257,7 @@ export default function AddLinkModal() {
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover hover:to-secondary text-white rounded-xl transition-all font-medium flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-secondary-light to-secondary hover:from-secondary hover:to-secondary-dark text-white rounded-xl transition-all font-semibold flex items-center justify-center gap-2 shadow-lg shadow-secondary/20"
               disabled={loading}
             >
               {loading ? (

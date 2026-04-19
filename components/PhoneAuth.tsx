@@ -35,6 +35,54 @@ export default function PhoneAuth() {
     }
   }, []);
 
+  // Helper function to handle successful authentication
+  const handleAuthSuccess = (token: string, user: any) => {
+    console.log('✅ Authentication successful');
+    console.log('📦 Token:', token);
+    console.log('👤 User:', user);
+    
+    if (!token || !user) {
+      console.error('❌ Missing token or user');
+      setError('Authentication failed. Please try again.');
+      setLoading(false);
+      return;
+    }
+    
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    
+    console.log('💾 Saved to localStorage');
+    
+    // Stop loading state before redirect
+    setLoading(false);
+    setError('');
+    
+    console.log('🔄 Redirecting in 300ms...');
+    
+    // Check if there's a pending shared URL
+    const pendingUrl = sessionStorage.getItem('pendingSharedUrl');
+    const pendingTitle = sessionStorage.getItem('pendingSharedTitle');
+    
+    // Delay to ensure localStorage is written and UI updates
+    setTimeout(() => {
+      console.log('🚀 Executing redirect now...');
+      
+      if (pendingUrl) {
+        console.log('📎 Found pending shared URL, redirecting to share page...');
+        sessionStorage.removeItem('pendingSharedUrl');
+        sessionStorage.removeItem('pendingSharedTitle');
+        
+        const params = new URLSearchParams();
+        params.set('url', pendingUrl);
+        if (pendingTitle) params.set('title', pendingTitle);
+        
+        window.location.href = `/share?${params.toString()}`;
+      } else {
+        window.location.href = '/';
+      }
+    }, 300);
+  };
+
   // Step 1: Enter phone number
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,35 +154,17 @@ export default function PhoneAuth() {
       const response = await authApi.verifyOTP(phoneNumber, otp);
       
       console.log('✅ OTP Verification Response:', response);
-      console.log('📦 Token:', response.token);
-      console.log('👤 User:', response.user);
       
-      // Success - login complete
-      if (!response.token || !response.user) {
-        console.error('❌ Missing token or user in response:', response);
-        setError('Authentication failed. Please try again.');
+      // Check if error is because user needs to provide name
+      if (!response.token && !response.user) {
+        setIsNewUser(true);
+        setStep('name');
         setLoading(false);
         return;
       }
       
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      
-      console.log('💾 Saved to localStorage');
-      console.log('🔑 Token in storage:', localStorage.getItem('token'));
-      console.log('👤 User in storage:', localStorage.getItem('user'));
-      
-      // Stop loading state before redirect
-      setLoading(false);
-      setError('');
-      
-      console.log('🔄 Redirecting to home page in 300ms...');
-      
-      // Delay to ensure localStorage is written and UI updates
-      setTimeout(() => {
-        console.log('🚀 Executing redirect now...');
-        window.location.href = '/';
-      }, 300);
+      // Success - login complete
+      handleAuthSuccess(response.token, response.user);
     } catch (err: any) {
       console.error('❌ OTP Verification Error:', err);
       console.error('❌ Error Response:', err.response?.data);
@@ -162,35 +192,9 @@ export default function PhoneAuth() {
       const response = await authApi.verifyOTP(phoneNumber, otp, name);
       
       console.log('✅ Name Submission Response:', response);
-      console.log('📦 Token:', response.token);
-      console.log('👤 User:', response.user);
       
-      if (!response.token || !response.user) {
-        console.error('❌ Missing token or user in response:', response);
-        setError('Registration failed. Please try again.');
-        setLoading(false);
-        return;
-      }
-      
-      // Save token and redirect
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      
-      console.log('💾 Saved to localStorage');
-      console.log('🔑 Token in storage:', localStorage.getItem('token'));
-      console.log('👤 User in storage:', localStorage.getItem('user'));
-      
-      // Stop loading state before redirect
-      setLoading(false);
-      setError('');
-      
-      console.log('🔄 Redirecting to home page in 300ms...');
-      
-      // Delay to ensure localStorage is written and UI updates
-      setTimeout(() => {
-        console.log('🚀 Executing redirect now...');
-        window.location.href = '/';
-      }, 300);
+      // Success - registration complete
+      handleAuthSuccess(response.token, response.user);
     } catch (err: any) {
       console.error('❌ Name Submission Error:', err);
       console.error('❌ Error Response:', err.response?.data);
@@ -205,22 +209,23 @@ export default function PhoneAuth() {
         {/* Logo */}
         <div className="text-center mb-8 animate-fade-in">
           <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center shadow-glow">
+            <div className="w-14 h-14 bg-gradient-to-br from-brand-blue to-secondary rounded-2xl flex items-center justify-center shadow-lg shadow-secondary/30">
               <MessageSquare className="w-7 h-7 text-white" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-secondary to-accent-purple bg-clip-text text-transparent mb-2">
-            LinkVault AI
+          <h1 className="text-4xl font-bold mb-2">
+            <span className="text-brand-blue">Smart</span>
+            <span className="text-secondary">Space</span>
           </h1>
           <p className="text-muted">Secure login with Telegram OTP</p>
         </div>
 
         {/* Progress Steps */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className={`w-2 h-2 rounded-full transition-all ${step === 'phone' ? 'bg-primary w-8' : 'bg-border'}`} />
-          <div className={`w-2 h-2 rounded-full transition-all ${step === 'telegram' ? 'bg-primary w-8' : 'bg-border'}`} />
-          <div className={`w-2 h-2 rounded-full transition-all ${step === 'otp' ? 'bg-primary w-8' : 'bg-border'}`} />
-          <div className={`w-2 h-2 rounded-full transition-all ${step === 'name' ? 'bg-primary w-8' : 'bg-border'}`} />
+          <div className={`w-2 h-2 rounded-full transition-all ${step === 'phone' ? 'bg-secondary w-8' : 'bg-border'}`} />
+          <div className={`w-2 h-2 rounded-full transition-all ${step === 'telegram' ? 'bg-secondary w-8' : 'bg-border'}`} />
+          <div className={`w-2 h-2 rounded-full transition-all ${step === 'otp' ? 'bg-secondary w-8' : 'bg-border'}`} />
+          <div className={`w-2 h-2 rounded-full transition-all ${step === 'name' ? 'bg-secondary w-8' : 'bg-border'}`} />
         </div>
 
         {/* Form Card */}
@@ -236,8 +241,8 @@ export default function PhoneAuth() {
           {step === 'phone' && (
             <form onSubmit={handlePhoneSubmit} className="space-y-6">
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-4">
-                  <Phone className="w-8 h-8 text-primary" />
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-blue/10 rounded-2xl mb-4">
+                  <Phone className="w-8 h-8 text-brand-blue" />
                 </div>
                 <h2 className="text-2xl font-bold mb-2">Enter Your Phone</h2>
                 <p className="text-muted text-sm">We'll send an OTP to your Telegram</p>
@@ -296,8 +301,8 @@ export default function PhoneAuth() {
                 <p className="font-medium">📱 How to get your Telegram ID:</p>
                 <ol className="space-y-2 ml-4 text-muted">
                   <li>1. Open Telegram and search for our bot</li>
-                  <li>2. Send <code className="px-2 py-1 bg-card rounded text-primary">/start</code></li>
-                  <li>3. Send <code className="px-2 py-1 bg-card rounded text-primary">/myid</code></li>
+                  <li>2. Send <code className="px-2 py-1 bg-card rounded text-secondary">/start</code></li>
+                  <li>3. Send <code className="px-2 py-1 bg-card rounded text-secondary">/myid</code></li>
                   <li>4. Copy your Telegram ID and paste below</li>
                 </ol>
               </div>
@@ -330,7 +335,7 @@ export default function PhoneAuth() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-6 py-4 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover hover:to-secondary-hover text-white rounded-xl transition-all font-semibold flex items-center justify-center gap-2 shadow-lg"
+                  className="flex-1 px-6 py-4 bg-gradient-to-r from-secondary-light to-secondary hover:from-secondary hover:to-secondary-dark text-white rounded-xl transition-all font-semibold flex items-center justify-center gap-2 shadow-lg shadow-secondary/20"
                   disabled={loading}
                 >
                   {loading ? (
@@ -378,7 +383,7 @@ export default function PhoneAuth() {
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   placeholder="000000"
                   maxLength={6}
-                  className="w-full px-4 py-4 bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-center text-3xl font-mono tracking-widest"
+                  className="w-full px-4 py-4 bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all text-center text-3xl font-mono tracking-widest"
                   required
                   disabled={loading}
                   autoFocus
@@ -388,7 +393,7 @@ export default function PhoneAuth() {
 
               <button
                 type="submit"
-                className="w-full px-6 py-4 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover hover:to-secondary-hover text-white rounded-xl transition-all font-semibold flex items-center justify-center gap-2 shadow-lg hover:shadow-glow disabled:opacity-50"
+                className="w-full px-6 py-4 bg-gradient-to-r from-secondary-light to-secondary hover:from-secondary hover:to-secondary-dark text-white rounded-xl transition-all font-semibold flex items-center justify-center gap-2 shadow-lg shadow-secondary/20 hover:shadow-secondary/30 disabled:opacity-50"
                 disabled={loading || otp.length !== 6}
               >
                 {loading ? (

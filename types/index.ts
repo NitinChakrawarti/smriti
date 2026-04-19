@@ -8,7 +8,7 @@ export interface Link {
   category: Category;
   contentType: ContentType;
   thumbnail: string;
-  source: 'telegram' | 'web';
+  source: 'telegram' | 'web' | 'pwa-share';
   readStatus: boolean;
   createdAt: string;
   updatedAt: string;

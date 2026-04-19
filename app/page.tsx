@@ -32,9 +32,9 @@ export default function Home() {
     console.log('👤 User from storage:', user ? 'EXISTS' : 'MISSING');
 
     if (!token || !user) {
-      console.log('❌ Not authenticated, redirecting to login...');
-      // Use window.location for hard redirect
-      window.location.href = '/login';
+      console.log('❌ Not authenticated, redirecting to landing...');
+      // Redirect to landing page instead of login
+      window.location.href = '/landing';
       return;
     }
 

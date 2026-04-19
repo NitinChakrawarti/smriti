@@ -50,7 +50,7 @@ export const fetchLinks = createAsyncThunk(
 
 export const addLink = createAsyncThunk(
   'links/addLink',
-  async ({ url, source }: { url: string; source: 'telegram' | 'web' }) => {
+  async ({ url, source }: { url: string; source: 'telegram' | 'web' | 'pwa-share' }) => {
     return await linkApi.addLink(url, source);
   }
 );
