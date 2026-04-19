@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authApi } from '@/services/api';
 import { Loader2, Phone, MessageSquare, Shield, ArrowRight, Check } from 'lucide-react';
@@ -23,6 +23,17 @@ export default function PhoneAuth() {
   const [hasTelegram, setHasTelegram] = useState(false);
   const [devOTP, setDevOTP] = useState('');
   const [isNewUser, setIsNewUser] = useState(false);
+
+  // Check if already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    if (token && user) {
+      console.log('🔄 Already logged in, redirecting to home...');
+      window.location.href = '/';
+    }
+  }, []);
 
   // Step 1: Enter phone number
   const handlePhoneSubmit = async (e: React.FormEvent) => {
@@ -92,21 +103,50 @@ export default function PhoneAuth() {
     setLoading(true);
 
     try {
-      const response = await authApi.verifyOTP(phoneNumber, otp, name || undefined);
+      const response = await authApi.verifyOTP(phoneNumber, otp);
       
-      // Check if user needs to provide name
-      if (!response.user.name) {
+      console.log('✅ OTP Verification Response:', response);
+      console.log('📦 Token:', response.token);
+      console.log('👤 User:', response.user);
+      
+      // Success - login complete
+      if (!response.token || !response.user) {
+        console.error('❌ Missing token or user in response:', response);
+        setError('Authentication failed. Please try again.');
+        setLoading(false);
+        return;
+      }
+      
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      
+      console.log('💾 Saved to localStorage');
+      console.log('🔑 Token in storage:', localStorage.getItem('token'));
+      console.log('👤 User in storage:', localStorage.getItem('user'));
+      
+      // Stop loading state before redirect
+      setLoading(false);
+      setError('');
+      
+      console.log('🔄 Redirecting to home page in 300ms...');
+      
+      // Delay to ensure localStorage is written and UI updates
+      setTimeout(() => {
+        console.log('🚀 Executing redirect now...');
+        window.location.href = '/';
+      }, 300);
+    } catch (err: any) {
+      console.error('❌ OTP Verification Error:', err);
+      console.error('❌ Error Response:', err.response?.data);
+      
+      // Check if error is because user needs to provide name
+      if (err.response?.data?.requiresName) {
         setIsNewUser(true);
         setStep('name');
         setLoading(false);
         return;
       }
       
-      // Save token and redirect
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      router.push('/');
-    } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid OTP');
       setLoading(false);
     }
@@ -121,11 +161,39 @@ export default function PhoneAuth() {
     try {
       const response = await authApi.verifyOTP(phoneNumber, otp, name);
       
+      console.log('✅ Name Submission Response:', response);
+      console.log('📦 Token:', response.token);
+      console.log('👤 User:', response.user);
+      
+      if (!response.token || !response.user) {
+        console.error('❌ Missing token or user in response:', response);
+        setError('Registration failed. Please try again.');
+        setLoading(false);
+        return;
+      }
+      
       // Save token and redirect
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
-      router.push('/');
+      
+      console.log('💾 Saved to localStorage');
+      console.log('🔑 Token in storage:', localStorage.getItem('token'));
+      console.log('👤 User in storage:', localStorage.getItem('user'));
+      
+      // Stop loading state before redirect
+      setLoading(false);
+      setError('');
+      
+      console.log('🔄 Redirecting to home page in 300ms...');
+      
+      // Delay to ensure localStorage is written and UI updates
+      setTimeout(() => {
+        console.log('🚀 Executing redirect now...');
+        window.location.href = '/';
+      }, 300);
     } catch (err: any) {
+      console.error('❌ Name Submission Error:', err);
+      console.error('❌ Error Response:', err.response?.data);
       setError(err.response?.data?.message || 'Failed to complete signup');
       setLoading(false);
     }
