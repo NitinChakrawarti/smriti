@@ -27,40 +27,24 @@ export default function AddLinkModal() {
     e.preventDefault();
 
     if (activeTab === 'link' && !url.trim()) {
-      dispatch(addToast({
-        message: 'Please enter a URL',
-        type: 'error',
-      }));
+      dispatch(addToast({ message: 'Please enter a URL', type: 'error' }));
       return;
     }
-
     if (activeTab === 'text' && !text.trim()) {
-      dispatch(addToast({
-        message: 'Please enter some text',
-        type: 'error',
-      }));
+      dispatch(addToast({ message: 'Please enter some text', type: 'error' }));
       return;
     }
 
     setLoading(true);
-
     try {
       if (activeTab === 'link') {
         await dispatch(addLink({ url: url.trim(), source: 'web' })).unwrap();
       }
-      // Add handlers for other types here
-      
       dispatch(fetchStats());
-      dispatch(addToast({
-        message: 'Content added successfully! Processing with AI...',
-        type: 'success',
-      }));
+      dispatch(addToast({ message: 'Content added! Processing with AI...', type: 'success' }));
       handleClose();
     } catch (error: any) {
-      dispatch(addToast({
-        message: error.message || 'Failed to add content',
-        type: 'error',
-      }));
+      dispatch(addToast({ message: error.message || 'Failed to add content', type: 'error' }));
     } finally {
       setLoading(false);
     }
@@ -69,57 +53,45 @@ export default function AddLinkModal() {
   if (!addLinkModalOpen) return null;
 
   const tabs = [
-    { id: 'link' as TabType, label: 'Link', icon: LinkIcon },
-    { id: 'text' as TabType, label: 'Text', icon: FileText },
+    { id: 'link' as TabType, label: 'Link',  icon: LinkIcon  },
+    { id: 'text' as TabType, label: 'Text',  icon: FileText  },
     { id: 'image' as TabType, label: 'Image', icon: ImageIcon },
-    { id: 'pdf' as TabType, label: 'PDF', icon: FileUp },
+    { id: 'pdf'  as TabType, label: 'PDF',   icon: FileUp    },
   ];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/80 backdrop-blur-md"
-        onClick={handleClose}
-      />
+      <div className="absolute inset-0 bg-black/40" onClick={handleClose} />
 
-      {/* Modal */}
-      <div className="relative w-full max-w-2xl bg-[#13131a] border border-white/10 rounded-3xl shadow-2xl animate-scale-in">
+      <div className="surface-strong relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl animate-scale-in">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-white/10">
+        <div className="border-b border-gray-200 px-6 py-5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-gradient-to-br from-brand-blue/20 to-secondary/20 rounded-xl border border-secondary/30">
-                <Sparkles className="w-5 h-5 text-secondary" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-white">Add Content</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Save and organize your knowledge</p>
-              </div>
+            <div>
+              <h2 className="text-base font-semibold text-gray-900">Add content</h2>
+              <p className="mt-0.5 text-sm text-gray-500">Save and organize your knowledge</p>
             </div>
-            <button
-              onClick={handleClose}
-              className="p-2 hover:bg-white/5 rounded-xl transition-colors"
-            >
-              <X className="w-5 h-5" />
+            <button onClick={handleClose} className="btn-icon">
+              <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-2 mt-5">
+          <div className="mt-5 flex gap-1 rounded-xl border border-gray-200 bg-gray-50 p-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-medium transition-colors ${
                     activeTab === tab.id
-                      ? 'bg-gradient-to-r from-brand-blue/20 to-secondary/20 text-white border border-secondary/30 shadow-lg shadow-secondary/10'
-                      : 'bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-white'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-3.5 h-3.5" />
                   <span>{tab.label}</span>
                 </button>
               );
@@ -127,13 +99,12 @@ export default function AddLinkModal() {
           </div>
         </div>
 
-        {/* Content */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {/* Link Tab */}
+        {/* Body */}
+        <form onSubmit={handleSubmit} className="space-y-5 p-6">
           {activeTab === 'link' && (
             <div className="space-y-4">
               <div>
-                <label htmlFor="url" className="block text-sm font-medium mb-2 text-white/90">
+                <label htmlFor="url" className="mb-1.5 block text-sm font-medium text-gray-700">
                   URL
                 </label>
                 <input
@@ -142,34 +113,24 @@ export default function AddLinkModal() {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://example.com/article"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary/50 transition-all placeholder:text-muted-foreground"
+                  className="input-base"
                   disabled={loading}
                   autoFocus
                 />
               </div>
 
-              <div className="bg-gradient-to-br from-brand-blue/10 to-secondary/10 rounded-xl p-4 border border-secondary/20">
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
                 <div className="flex items-start gap-3">
-                  <Sparkles className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
+                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
                   <div className="text-sm">
-                    <p className="text-white/90 font-medium mb-2">AI will automatically:</p>
-                    <ul className="space-y-1 text-muted-foreground">
-                      <li className="flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-secondary"></span>
-                        Generate intelligent summary
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-secondary"></span>
-                        Extract relevant tags
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-secondary"></span>
-                        Classify category
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-secondary"></span>
-                        Fetch metadata & thumbnail
-                      </li>
+                    <p className="font-medium text-gray-700">AI will automatically:</p>
+                    <ul className="mt-2 space-y-1 text-gray-500">
+                      {['Generate intelligent summary', 'Extract relevant tags', 'Classify category', 'Fetch metadata & thumbnail'].map((item) => (
+                        <li key={item} className="flex items-center gap-2">
+                          <span className="h-1 w-1 rounded-full bg-indigo-400 shrink-0" />
+                          {item}
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 </div>
@@ -177,11 +138,10 @@ export default function AddLinkModal() {
             </div>
           )}
 
-          {/* Text Tab */}
           {activeTab === 'text' && (
             <div className="space-y-4">
               <div>
-                <label htmlFor="text" className="block text-sm font-medium mb-2 text-white/90">
+                <label htmlFor="text" className="mb-1.5 block text-sm font-medium text-gray-700">
                   Your Text
                 </label>
                 <textarea
@@ -189,87 +149,54 @@ export default function AddLinkModal() {
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   placeholder="Paste or type your content here..."
-                  rows={8}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary/50 transition-all placeholder:text-muted-foreground resize-none"
+                  rows={7}
+                  className="textarea-base"
                   disabled={loading}
                   autoFocus
                 />
               </div>
-
-              <div className="bg-gradient-to-br from-brand-blue/10 to-secondary/10 rounded-xl p-4 border border-secondary/20">
-                <p className="text-sm text-white/90">
-                  <Sparkles className="w-4 h-4 text-secondary inline mr-2" />
-                  AI will analyze your text and create a structured knowledge entry
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Image Tab */}
-          {activeTab === 'image' && (
-            <div className="space-y-4">
-              <div className="border-2 border-dashed border-white/10 rounded-xl p-12 text-center hover:border-primary/30 transition-colors">
-                <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-sm text-white/90 mb-2">Drag & drop an image here</p>
-                <p className="text-xs text-muted-foreground mb-4">or click to browse</p>
-                <button
-                  type="button"
-                  className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors"
-                >
-                  Choose File
-                </button>
-              </div>
-              <p className="text-xs text-muted-foreground text-center">
-                Supported formats: JPG, PNG, GIF (Max 10MB)
+              <p className="flex items-center gap-2 text-sm text-gray-500">
+                <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+                AI will analyze and create a structured knowledge entry.
               </p>
             </div>
           )}
 
-          {/* PDF Tab */}
-          {activeTab === 'pdf' && (
-            <div className="space-y-4">
-              <div className="border-2 border-dashed border-white/10 rounded-xl p-12 text-center hover:border-primary/30 transition-colors">
-                <FileUp className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-sm text-white/90 mb-2">Drag & drop a PDF here</p>
-                <p className="text-xs text-muted-foreground mb-4">or click to browse</p>
-                <button
-                  type="button"
-                  className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors"
-                >
-                  Choose File
-                </button>
-              </div>
-              <p className="text-xs text-muted-foreground text-center">
-                AI will extract text and create searchable content (Max 25MB)
+          {(activeTab === 'image' || activeTab === 'pdf') && (
+            <div className="rounded-xl border-2 border-dashed border-gray-200 p-10 text-center hover:border-indigo-300 hover:bg-indigo-50/30 transition-colors">
+              {activeTab === 'image'
+                ? <ImageIcon className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+                : <FileUp    className="mx-auto mb-3 h-10 w-10 text-gray-300" />}
+              <p className="text-sm text-gray-600">
+                {activeTab === 'image' ? 'Drag & drop an image here' : 'Drag & drop a PDF here'}
+              </p>
+              <p className="mt-1 text-xs text-gray-400">or click to browse</p>
+              <button type="button" className="btn-secondary mt-4 mx-auto">Choose File</button>
+              <p className="mt-3 text-xs text-gray-400">
+                {activeTab === 'image' ? 'JPG, PNG, GIF · Max 10 MB' : 'PDF · Max 25 MB'}
               </p>
             </div>
           )}
 
           {/* Actions */}
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-col gap-2 pt-2 sm:flex-row">
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors font-medium"
+              className="btn-secondary w-full sm:flex-1"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-secondary-light to-secondary hover:from-secondary hover:to-secondary-dark text-white rounded-xl transition-all font-semibold flex items-center justify-center gap-2 shadow-lg shadow-secondary/20"
+              className="btn-primary w-full sm:flex-1"
               disabled={loading}
             >
               {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Processing...
-                </>
+                <><Loader2 className="w-4 h-4 animate-spin" />Processing...</>
               ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  Save Content
-                </>
+                <><Sparkles className="w-4 h-4" />Save Content</>
               )}
             </button>
           </div>

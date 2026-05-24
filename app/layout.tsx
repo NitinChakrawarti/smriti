@@ -1,20 +1,26 @@
-import type { Metadata } from 'next';
+
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import './globals.css';
+
 import { Providers } from './providers';
 
-const inter = Inter({ subsets: ['latin'] });
+import './globals.css';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'LinkVault AI - AI-Powered Link Intelligence',
-  description: 'Transform links into structured knowledge with AI',
+  title: 'Smriti - AI Knowledge Ingestion',
+  description: 'Smriti captures links, cleans them with AI, and turns them into searchable knowledge.',
   manifest: '/manifest.json',
-  themeColor: '#3b82f6',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'LinkVault AI',
+    title: 'Smriti',
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#ffffff',
 };
 
 export default function RootLayout({
@@ -23,14 +29,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="icon" type="image/png" href="/logo/dark_logo.png" />
+        <link rel="apple-touch-icon" href="/logo/dark_logo.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} app-shell`}>
         <Providers>{children}</Providers>
       </body>
     </html>

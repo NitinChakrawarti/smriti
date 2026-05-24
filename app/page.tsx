@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchLinks, fetchStats } from '@/store/slices/linksSlice';
 import Sidebar from '@/components/Sidebar';
@@ -14,84 +13,95 @@ import LoadingSkeleton from '@/components/LoadingSkeleton';
 import { Loader2 } from 'lucide-react';
 
 export default function Home() {
-  const router = useRouter();
   const dispatch = useAppDispatch();
   const { links, loading } = useAppSelector((state) => state.links);
-  const { sidebarOpen } = useAppSelector((state) => state.ui);
+  const { sidebarOpen, searchQuery } = useAppSelector((state) => state.ui);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checking, setChecking] = useState(true);
 
+  const filteredLinks = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+
+    if (!query) return links;
+
+    return links.filter((link) => {
+      const searchableText = [
+        link.title,
+        link.description,
+        link.summary,
+        link.url,
+        link.category,
+        ...link.tags,
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      return searchableText.includes(query);
+    });
+  }, [links, searchQuery]);
+
   useEffect(() => {
-    console.log('🏠 Home page: Checking authentication...');
-    
-    // Check authentication
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
 
-    console.log('🔑 Token from storage:', token ? 'EXISTS' : 'MISSING');
-    console.log('👤 User from storage:', user ? 'EXISTS' : 'MISSING');
-
     if (!token || !user) {
-      console.log('❌ Not authenticated, redirecting to landing...');
-      // Redirect to landing page instead of login
       window.location.href = '/landing';
       return;
     }
 
-    console.log('✅ Authenticated! Loading dashboard...');
     setIsAuthenticated(true);
     setChecking(false);
-
-    // Fetch data
     dispatch(fetchLinks());
     dispatch(fetchStats());
   }, [dispatch]);
 
-  // Show loading while checking auth
   if (checking) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#0B0F14]">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground">Loading...</p>
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-7 w-7 animate-spin text-indigo-500" />
+          <p className="text-sm text-gray-500">Loading dashboard...</p>
         </div>
       </div>
     );
   }
 
-  // Don't render if not authenticated
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (!isAuthenticated) return null;
 
   return (
-    <div className="flex h-screen bg-[#0B0F14]">
-      {/* Sidebar */}
+    <div className="flex min-h-screen bg-white">
       <Sidebar />
 
-      {/* Main Content */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? 'lg:ml-64' : 'ml-0'}`}>
-        {/* Header */}
+      <div className={`flex min-w-0 flex-1 flex-col transition-all duration-300 ${sidebarOpen ? 'lg:ml-72' : 'ml-0'}`}>
         <Header />
 
-        {/* Content Area */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="max-w-[1600px] mx-auto p-6 lg:p-8">
+        <main className="flex-1">
+          <div className="content-shell">
             {loading ? (
               <LoadingSkeleton />
+            ) : filteredLinks.length === 0 ? (
+              searchQuery.trim() ? (
+                <div className="surface-card flex min-h-[40vh] items-center justify-center p-8 text-center">
+                  <div className="max-w-md">
+                    <h2 className="text-xl font-semibold text-gray-900">No matching links</h2>
+                    <p className="mt-3 text-sm leading-relaxed text-gray-500">
+                      Nothing matched “{searchQuery}”. Try a title, tag, category, or part of the URL.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <EmptyState />
+              )
             ) : links.length === 0 ? (
               <EmptyState />
             ) : (
-              <LinkGrid links={links} />
+              <LinkGrid links={filteredLinks} />
             )}
           </div>
         </main>
       </div>
 
-      {/* Modals */}
       <AddLinkModal />
-
-      {/* Toast Notifications */}
       <Toast />
     </div>
   );

@@ -14,7 +14,6 @@ export default function Toast() {
       const timer = setTimeout(() => {
         dispatch(removeToast(toast.id));
       }, 5000);
-
       return () => clearTimeout(timer);
     });
   }, [toasts, dispatch]);
@@ -22,35 +21,24 @@ export default function Toast() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 space-y-2">
+    <div className="fixed bottom-4 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 space-y-2 px-4 sm:bottom-6 sm:left-auto sm:right-6 sm:translate-x-0 sm:px-0">
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className="glass rounded-lg p-4 min-w-[300px] max-w-md animate-fade-in shadow-lg"
+          className="surface-strong animate-fade-in-up rounded-xl px-4 py-3"
         >
           <div className="flex items-start gap-3">
-            {/* Icon */}
-            <div className="flex-shrink-0">
-              {toast.type === 'success' && (
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              )}
-              {toast.type === 'error' && (
-                <XCircle className="w-5 h-5 text-red-400" />
-              )}
-              {toast.type === 'info' && (
-                <Info className="w-5 h-5 text-blue-400" />
-              )}
+            <div className="shrink-0 mt-0.5">
+              {toast.type === 'success' && <CheckCircle className="w-4 h-4 text-green-500" />}
+              {toast.type === 'error'   && <XCircle     className="w-4 h-4 text-red-500"   />}
+              {toast.type === 'info'    && <Info        className="w-4 h-4 text-indigo-500" />}
             </div>
-
-            {/* Message */}
-            <p className="flex-1 text-sm">{toast.message}</p>
-
-            {/* Close button */}
+            <p className="flex-1 text-sm text-gray-700">{toast.message}</p>
             <button
               onClick={() => dispatch(removeToast(toast.id))}
-              className="flex-shrink-0 p-1 hover:bg-card-hover rounded transition-colors"
+              className="shrink-0 rounded-md p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

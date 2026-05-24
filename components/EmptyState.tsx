@@ -8,51 +8,24 @@ export default function EmptyState() {
   const dispatch = useAppDispatch();
 
   return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="text-center space-y-6 max-w-md">
-        {/* Icon */}
-        <div className="flex justify-center">
-          <div className="p-6 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full">
-            <LinkIcon className="w-16 h-16 text-primary" />
-          </div>
+    <div className="flex min-h-[55vh] items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md text-center">
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-gray-200 bg-gray-50">
+          <LinkIcon className="h-7 w-7 text-gray-400" />
         </div>
 
-        {/* Text */}
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold">No links yet</h2>
-          <p className="text-muted">
-            Start building your knowledge base by adding your first link.
-            Our AI will automatically process and organize it for you.
-          </p>
-        </div>
+        <h2 className="text-xl font-semibold text-gray-900">Your knowledge vault is empty</h2>
+        <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-gray-500">
+          Start by saving a link. Smriti will clean the page, summarize it, and turn it into a searchable memory.
+        </p>
 
-        {/* Action */}
         <button
           onClick={() => dispatch(setAddLinkModalOpen(true))}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary-hover text-white rounded-lg transition-colors font-medium"
+          className="btn-primary mt-8 mx-auto"
         >
-          <Plus className="w-5 h-5" />
-          Add Your First Link
+          <Plus className="w-4 h-4" />
+          Add your first link
         </button>
-
-        {/* Features */}
-        <div className="pt-6 space-y-3 text-sm text-muted">
-          <p className="font-medium text-foreground">What happens next?</p>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-primary">✓</span>
-              <span>AI generates a summary</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-primary">✓</span>
-              <span>Automatic tag extraction</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-primary">✓</span>
-              <span>Smart category classification</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

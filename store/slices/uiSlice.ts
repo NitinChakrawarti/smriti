@@ -10,12 +10,14 @@ interface UiState {
   sidebarOpen: boolean;
   toasts: Toast[];
   addLinkModalOpen: boolean;
+  searchQuery: string;
 }
 
 const initialState: UiState = {
   sidebarOpen: true,
   toasts: [],
   addLinkModalOpen: false,
+  searchQuery: '',
 };
 
 const uiSlice = createSlice({
@@ -38,8 +40,14 @@ const uiSlice = createSlice({
     setAddLinkModalOpen: (state, action: PayloadAction<boolean>) => {
       state.addLinkModalOpen = action.payload;
     },
+    setSearchQuery: (state, action: PayloadAction<string>) => {
+      state.searchQuery = action.payload;
+    },
+    clearSearchQuery: (state) => {
+      state.searchQuery = '';
+    },
   },
 });
 
-export const { toggleSidebar, setSidebarOpen, addToast, removeToast, setAddLinkModalOpen } = uiSlice.actions;
+export const { toggleSidebar, setSidebarOpen, addToast, removeToast, setAddLinkModalOpen, setSearchQuery, clearSearchQuery } = uiSlice.actions;
 export default uiSlice.reducer;

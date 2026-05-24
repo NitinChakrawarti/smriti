@@ -5,7 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppDispatch } from '@/store/hooks';
 import { addLink } from '@/store/slices/linksSlice';
 import { addToast } from '@/store/slices/uiSlice';
-import { Loader2, CheckCircle2, XCircle, Share2 } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, Share2, Sparkles, Bot, Shield } from 'lucide-react';
+import BrandMark from '@/components/BrandMark';
 
 export default function SharePageClient() {
   const router = useRouter();
@@ -102,39 +103,56 @@ export default function SharePageClient() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#0B0F14]">
-      <div className="text-center space-y-6 p-8 max-w-md">
-        {/* Icon */}
+    <div className="flex min-h-screen items-center justify-center px-4 py-8 text-white sm:px-6 lg:px-8">
+      <div className="section-shell w-full max-w-2xl text-center">
+        <div className="mx-auto mb-6 flex justify-center">
+          <BrandMark compact />
+        </div>
+
         <div className="flex justify-center">
           {status === 'processing' && (
-            <Loader2 className="w-16 h-16 animate-spin text-blue-500" />
+            <Loader2 className="w-16 h-16 animate-spin text-[#4d79ff]" />
           )}
           {status === 'success' && (
-            <CheckCircle2 className="w-16 h-16 text-green-500" />
+            <CheckCircle2 className="w-16 h-16 text-[#27d7c4]" />
           )}
           {status === 'error' && (
-            <XCircle className="w-16 h-16 text-red-500" />
+            <XCircle className="w-16 h-16 text-red-400" />
           )}
           {status === 'auth-required' && (
-            <Share2 className="w-16 h-16 text-yellow-500" />
+            <Share2 className="w-16 h-16 text-[#7c5cff]" />
           )}
         </div>
 
-        {/* Message */}
-        <div className="space-y-2">
-          <h2 className="text-xl font-semibold text-white">
+        <div className="mt-6 space-y-2">
+          <h2 className="text-2xl font-semibold tracking-tight text-white">
             {status === 'processing' && 'Processing...'}
             {status === 'success' && 'Success!'}
             {status === 'error' && 'Error'}
             {status === 'auth-required' && 'Login Required'}
           </h2>
-          <p className="text-gray-400 text-sm break-words">{message}</p>
+          <p className="break-words text-sm leading-7 text-slate-400">{message}</p>
         </div>
 
-        {/* Progress indicator */}
+        <div className="mt-8 grid gap-3 text-left sm:grid-cols-3">
+          {[
+            ['Save', 'Capture the URL'],
+            ['Enrich', 'AI cleans and tags'],
+            ['Store', 'Add to your vault'],
+          ].map(([title, text]) => (
+            <div key={title} className="metric-shell rounded-2xl text-left">
+              <div className="mb-2 inline-flex rounded-xl bg-white/10 p-2 text-[#27d7c4]">
+                <Sparkles className="h-4 w-4" />
+              </div>
+              <p className="text-sm font-semibold text-white">{title}</p>
+              <p className="text-sm text-slate-400">{text}</p>
+            </div>
+          ))}
+        </div>
+
         {status === 'processing' && (
-          <div className="w-full bg-gray-800 rounded-full h-1.5">
-            <div className="bg-blue-500 h-1.5 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+          <div className="mt-8 h-1.5 w-full rounded-full bg-white/10">
+            <div className="h-1.5 w-[60%] animate-pulse rounded-full bg-gradient-to-r from-[#7c5cff] via-[#4d79ff] to-[#27d7c4]" />
           </div>
         )}
       </div>
