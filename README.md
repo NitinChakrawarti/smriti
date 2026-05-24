@@ -1,12 +1,15 @@
-# LinkVault AI - Frontend
+# Smriti - Frontend
 
-Modern SaaS UI for LinkVault AI built with Next.js 14, TypeScript, and Tailwind CSS.
+Smriti is a lightweight AI knowledge workspace that captures links, organizes them
+automatically, and gives you a clean place to search, scan, and revisit what matters.
+
+This frontend is a modern SaaS UI built with Next.js 14, TypeScript, and Tailwind CSS.
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 16+
-- Backend API running on port 5000
+- Backend API running (default: port 5000)
 
 ### Installation
 
@@ -14,10 +17,10 @@ Modern SaaS UI for LinkVault AI built with Next.js 14, TypeScript, and Tailwind 
 # Install dependencies
 npm install
 
-# Create .env.local file
-cp .env.local.example .env.local
+# Create .env.local from example
+copy .env.local.example .env.local
 
-# Edit .env.local if needed
+# Edit .env.local if needed (Windows: use an editor)
 # NEXT_PUBLIC_API_URL=http://localhost:5000/api
 
 # Run development server
@@ -28,123 +31,60 @@ npm run build
 npm start
 ```
 
-The app will start on `http://localhost:3000`
+The app will start on http://localhost:3000 by default.
 
-## 📁 Project Structure
+## 📋 Summary
+
+This repo contains the frontend for Smriti using the Next.js App Router, Redux Toolkit for state, Tailwind CSS for styling, and API helpers in `services/api.ts`.
+
+See the `app` folder for pages and components.
+
+## ✨ Features (detected)
+
+The frontend implements the following features (extracted from the codebase):
+
+- Authentication
+	- Phone / Telegram OTP flow with optional name step (`components/PhoneAuth.tsx`, `services/api.ts`).
+	- Legacy email/password register & login endpoints supported in `services/api.ts`.
+
+- Content capture & processing
+	- Add content modal supports Link, Text, Image and PDF uploads (`components/AddLinkModal.tsx`).
+	- AI enrichment: automatic summary, tag extraction, category classification, and metadata/thumbnail fetching.
+	- PWA/share flow and server redirect endpoint (`app/api/share/route.ts`, `app/share/share-page-client.tsx`).
+
+- Library management
+	- Add, list, delete links and toggle read/unread (`store/slices/linksSlice.ts`, `components/LinkCard.tsx`).
+	- Search and category filters (header search, category dropdown in `components/Header.tsx`).
+	- Dashboard with stats and category distribution (`app/dashboard/page.tsx`).
+
+- UX & UI
+	- Responsive design, skeleton loaders, toast notifications and polished components (Header, Sidebar, LinkGrid, LinkCard).
+	- Dark/light themes via `next-themes` and Tailwind styling.
+
+- Client/server integration
+	- Axios client with automatic token injection and endpoints for auth, links and stats (`services/api.ts`).
+
+## About (highlights)
+
+Smriti highlights (from the app About page):
+
+- AI-powered capture: Turns shared links into summaries, tags, and useful categories automatically.
+- Knowledge vault: Stores content in one clean dashboard so it is easy to search and revisit later.
+- Private by design: Built to keep your saved knowledge organized, personal, and secure.
+
+If you'd like screenshots, a changelog, or deployment instructions for a specific host, tell me which and I'll update the README.
+
+## 📁 Project Structure (overview)
 
 ```
 frontend/
-├── app/                    # Next.js App Router
-│   ├── layout.tsx         # Root layout
-│   ├── page.tsx           # Home page
-│   ├── globals.css        # Global styles
-│   └── providers.tsx      # Redux provider
-├── components/            # React components
-│   ├── Header.tsx
-│   ├── Sidebar.tsx
-│   ├── LinkCard.tsx
-│   ├── LinkGrid.tsx
-│   ├── AddLinkModal.tsx
-│   ├── Toast.tsx
-│   ├── EmptyState.tsx
-│   └── LoadingSkeleton.tsx
-├── store/                 # Redux store
-│   ├── index.ts
-│   ├── hooks.ts
-│   └── slices/
-│       ├── linksSlice.ts
-│       └── uiSlice.ts
-├── services/              # API services
-│   └── api.ts
-├── types/                 # TypeScript types
-│   └── index.ts
+├── app/            # Next.js App Router (pages + routes)
+├── components/     # React components (Header, Sidebar, LinkCard, etc.)
+├── store/          # Redux store and slices
+├── services/       # API helpers (services/api.ts)
+├── public/         # static assets
+├── styles/         # global styles (globals.css)
 └── package.json
-```
-
-## 🎨 Design System
-
-### Colors
-- **Background**: `#0a0a0a` - Deep black
-- **Card**: `#141414` - Dark gray
-- **Primary**: `#3b82f6` - Blue
-- **Secondary**: `#6366f1` - Indigo
-- **Accent**: `#8b5cf6` - Purple
-
-### Components
-- Glassmorphism cards with backdrop blur
-- Smooth hover animations
-- Skeleton loaders
-- Toast notifications
-- Modal dialogs
-
-## 🔌 Features
-
-- ✅ Modern SaaS UI with dark mode
-- ✅ Responsive design (mobile, tablet, desktop)
-- ✅ Redux Toolkit for state management
-- ✅ Real-time filtering and sorting
-- ✅ Toast notifications
-- ✅ Loading states and skeletons
-- ✅ Empty states
-- ✅ Glassmorphism design
-- ✅ Smooth animations
-
-## 🎯 Key Components
-
-### LinkCard
-Displays individual link with:
-- Thumbnail image
-- Title and summary
-- Tags
-- Category badge
-- Read/unread toggle
-- Delete action
-- External link
-
-### Sidebar
-Filters panel with:
-- Statistics
-- Read status filter
-- Category filters
-- Clear filters button
-
-### Header
-Top navigation with:
-- Menu toggle
-- Logo
-- Search bar
-- Add link button
-
-### AddLinkModal
-Modal for adding new links:
-- URL input
-- Loading state
-- AI processing indicator
-
-## 📱 Responsive Design
-
-- **Mobile**: Single column, collapsible sidebar
-- **Tablet**: 2 columns
-- **Desktop**: 3 columns, persistent sidebar
-
-## 🎨 Customization
-
-### Colors
-Edit `tailwind.config.ts` to customize colors:
-
-```typescript
-colors: {
-  primary: '#3b82f6',
-  secondary: '#6366f1',
-  // ...
-}
-```
-
-### Layout
-Adjust grid columns in `LinkGrid.tsx`:
-
-```tsx
-className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
 ```
 
 ## 🔧 Environment Variables
@@ -155,26 +95,22 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api
 
 ## 📝 Notes
 
-- Uses Next.js 14 App Router
-- TypeScript for type safety
+- Uses Next.js 14 App Router and TypeScript
 - Redux Toolkit for state management
 - Tailwind CSS for styling
-- Lucide React for icons
 - Axios for API calls
 
 ## 🚀 Deployment
 
-```bash
-# Build for production
-npm run build
+Build and start locally:
 
-# Start production server
+```bash
+npm run build
 npm start
 ```
 
-For deployment to Vercel:
-```bash
-vercel deploy
-```
+Deploy to Vercel or your preferred host and set `NEXT_PUBLIC_API_URL` in production.
 
-Make sure to set environment variables in your deployment platform.
+---
+
+I've left `ProjectName` as a placeholder. Reply with the new project name and a short bullet list of exact new features you want listed, and I'll update the README accordingly.
