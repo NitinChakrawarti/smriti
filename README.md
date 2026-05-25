@@ -72,7 +72,6 @@ Smriti highlights (from the app About page):
 - Knowledge vault: Stores content in one clean dashboard so it is easy to search and revisit later.
 - Private by design: Built to keep your saved knowledge organized, personal, and secure.
 
-If you'd like screenshots, a changelog, or deployment instructions for a specific host, tell me which and I'll update the README.
 
 ## 📁 Project Structure (overview)
 
@@ -113,4 +112,3 @@ Deploy to Vercel or your preferred host and set `NEXT_PUBLIC_API_URL` in product
 
 ---
 
-I've left `ProjectName` as a placeholder. Reply with the new project name and a short bullet list of exact new features you want listed, and I'll update the README accordingly.
