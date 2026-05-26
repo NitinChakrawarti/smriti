@@ -8,7 +8,8 @@ const SHARE_SYNC_TAG = 'smriti-share-sync';
 const PRECACHE_URLS = [
   '/',
   '/manifest.json',
-  '/logo/dark_logo.png',
+  '/icon-192.png',
+  '/icon-512.png',
 ];
 
 // ─── Install ──────────────────────────────────────────────────────────────────
@@ -160,8 +161,8 @@ async function sendNotification(title, body) {
   if (Notification.permission !== 'granted') return;
   await self.registration.showNotification(title, {
     body: body.length > 80 ? body.slice(0, 77) + '…' : body,
-    icon:  '/logo/dark_logo.png',
-    badge: '/logo/dark_logo.png',
+    icon:  '/icon-192.png',
+    badge: '/icon-192.png',
     tag:   'smriti-save',
     renotify: false,
     requireInteraction: false,
