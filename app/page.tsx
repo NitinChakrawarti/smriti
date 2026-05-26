@@ -8,6 +8,7 @@ import Header from '@/components/Header';
 import LinkGrid from '@/components/LinkGrid';
 import AddLinkModal from '@/components/AddLinkModal';
 import Toast from '@/components/Toast';
+import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import EmptyState from '@/components/EmptyState';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
 import { Loader2 } from 'lucide-react';
@@ -103,6 +104,7 @@ export default function Home() {
 
       <AddLinkModal />
       <Toast />
+      <PWAInstallPrompt />
     </div>
   );
 }

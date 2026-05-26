@@ -1,160 +1,164 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppDispatch } from '@/store/hooks';
 import { addLink } from '@/store/slices/linksSlice';
 import { addToast } from '@/store/slices/uiSlice';
-import { Loader2, CheckCircle2, XCircle, Share2, Sparkles, Bot, Shield } from 'lucide-react';
+import {
+  enqueueShare,
+  requestBackgroundSync,
+  notifySW,
+} from '@/lib/share-queue';
+import { Loader2 } from 'lucide-react';
 import BrandMark from '@/components/BrandMark';
 
+// Extract the first URL from a block of text
+function extractUrl(text: string): string | null {
+  const m = text.match(/(https?:\/\/[^\s]+)/);
+  return m ? m[0] : null;
+}
+
 export default function SharePageClient() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const dispatch = useAppDispatch();
-  const [status, setStatus] = useState<'processing' | 'success' | 'error' | 'auth-required'>('processing');
-  const [message, setMessage] = useState('Processing shared link...');
+  const router     = useRouter();
+  const params     = useSearchParams();
+  const dispatch   = useAppDispatch();
+  const processed  = useRef(false);
 
   useEffect(() => {
-    const handleShare = async () => {
-      // Check authentication first
+    if (processed.current) return;
+    processed.current = true;
+
+    const run = async () => {
+      // ── Auth check ──────────────────────────────────────────────────────
       const token = localStorage.getItem('token');
-      const user = localStorage.getItem('user');
+      const user  = localStorage.getItem('user');
 
       if (!token || !user) {
-        setStatus('auth-required');
-        setMessage('Please login to save shared links');
-        
-        // Store the shared URL in sessionStorage to process after login
-        const url = searchParams.get('url');
-        const text = searchParams.get('text');
-        const title = searchParams.get('title');
-        
-        const sharedUrl = url || extractUrlFromText(text || '');
+        // Store shared content so login page can resume
+        const sharedUrl   = params.get('url') || extractUrl(params.get('text') || '');
+        const sharedTitle = params.get('title');
         if (sharedUrl) {
           sessionStorage.setItem('pendingSharedUrl', sharedUrl);
-          if (title) sessionStorage.setItem('pendingSharedTitle', title);
+          if (sharedTitle) sessionStorage.setItem('pendingSharedTitle', sharedTitle);
         }
-        
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          router.push('/login');
-        }, 2000);
+        router.replace('/login');
         return;
       }
 
-      // Get shared data from URL params
-      const url = searchParams.get('url');
-      const text = searchParams.get('text');
-      const title = searchParams.get('title');
+      // ── Resolve what was shared ─────────────────────────────────────────
+      const urlParam   = params.get('url')   || '';
+      const textParam  = params.get('text')  || '';
+      const titleParam = params.get('title') || '';
 
-      // Extract URL from text if not in url param
-      const sharedUrl = url || extractUrlFromText(text || '');
+      // Files stashed by the SW in Cache Storage
+      const pendingId  = params.get('pendingId');
+      const fileCount  = parseInt(params.get('fileCount') || '0', 10);
+      const fileNames  = params.get('fileNames')?.split(',').map(decodeURIComponent) || [];
+      const fileTypes  = params.get('fileTypes')?.split(',') || [];
 
-      if (!sharedUrl) {
-        setStatus('error');
-        setMessage('No URL found in shared content');
-        
-        setTimeout(() => {
-          router.push('/');
-        }, 2000);
-        return;
-      }
+      const sharedUrl  = urlParam || extractUrl(textParam);
 
-      try {
-        setMessage(`Saving: ${title || sharedUrl}`);
-        await dispatch(addLink({ url: sharedUrl, source: 'pwa-share' })).unwrap();
-        
-        setStatus('success');
-        setMessage('Link saved successfully! AI is categorizing it...');
-        
-        dispatch(addToast({
-          message: 'Link added and categorized by AI!',
-          type: 'success',
-        }));
-        
-        // Redirect to home after 1.5 seconds
-        setTimeout(() => {
-          router.push('/');
-        }, 1500);
-      } catch (error: any) {
-        setStatus('error');
-        setMessage(error.message || 'Failed to save link');
-        
-        dispatch(addToast({
-          message: error.message || 'Failed to add link',
-          type: 'error',
-        }));
-        
-        // Redirect to home after 2 seconds
-        setTimeout(() => {
-          router.push('/');
-        }, 2000);
+      // ── Ingest ──────────────────────────────────────────────────────────
+      if (sharedUrl) {
+        await ingestUrl(sharedUrl, titleParam, token);
+      } else if (pendingId && fileCount > 0) {
+        await ingestFiles(pendingId, fileCount, fileNames, fileTypes, token);
+      } else {
+        // Nothing useful shared
+        dispatch(addToast({ message: 'Nothing to save', type: 'info' }));
+        router.replace('/');
       }
     };
 
-    handleShare();
-  }, [searchParams, dispatch, router]);
+    run();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const extractUrlFromText = (text: string): string | null => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const match = text.match(urlRegex);
-    return match ? match[0] : null;
-  };
+  // ── URL ingestion ────────────────────────────────────────────────────────
+  async function ingestUrl(url: string, title: string, token: string) {
+    try {
+      await dispatch(addLink({ url, source: 'pwa-share' })).unwrap();
+      onSuccess('Saved to Smriti');
+    } catch (err: any) {
+      if (!navigator.onLine) {
+        // Queue for later
+        await enqueueShare({ url, title, text: undefined }).catch(() => {});
+        requestBackgroundSync();
+        onQueued();
+      } else {
+        onError(err?.message || 'Failed to save');
+      }
+    }
+  }
 
+  // ── File ingestion via FormData → existing /api/share → backend ──────────
+  async function ingestFiles(
+    pendingId: string,
+    count: number,
+    names: string[],
+    types: string[],
+    token: string
+  ) {
+    try {
+      const cache = await caches.open('smriti-pending-files');
+      const formData = new FormData();
+      formData.append('source', 'pwa-share');
+
+      for (let i = 0; i < count; i++) {
+        const cacheKey = `/${pendingId}/${i}/${names[i]}`;
+        const response = await cache.match(cacheKey);
+        if (!response) continue;
+        const blob = await response.blob();
+        const file = new File([blob], names[i], { type: types[i] || blob.type });
+        formData.append('files', file);
+        await cache.delete(cacheKey);
+      }
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${apiUrl}/links/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || `Upload failed (${res.status})`);
+      }
+
+      onSuccess('Saved to Smriti');
+    } catch (err: any) {
+      if (!navigator.onLine) {
+        onQueued();
+      } else {
+        onError(err?.message || 'Failed to upload file');
+      }
+    }
+  }
+
+  function onSuccess(message: string) {
+    dispatch(addToast({ message, type: 'success' }));
+    notifySW('Saved to Smriti', message);
+    router.replace('/');
+  }
+
+  function onQueued() {
+    dispatch(addToast({ message: 'Queued — will save when online', type: 'info' }));
+    router.replace('/');
+  }
+
+  function onError(message: string) {
+    dispatch(addToast({ message, type: 'error' }));
+    setTimeout(() => router.replace('/'), 2000);
+  }
+
+  // Minimal loading UI — shown only for the brief moment before redirect
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-8 text-white sm:px-6 lg:px-8">
-      <div className="section-shell w-full max-w-2xl text-center">
-        <div className="mx-auto mb-6 flex justify-center">
-          <BrandMark compact />
-        </div>
-
-        <div className="flex justify-center">
-          {status === 'processing' && (
-            <Loader2 className="w-16 h-16 animate-spin text-[#4d79ff]" />
-          )}
-          {status === 'success' && (
-            <CheckCircle2 className="w-16 h-16 text-[#27d7c4]" />
-          )}
-          {status === 'error' && (
-            <XCircle className="w-16 h-16 text-red-400" />
-          )}
-          {status === 'auth-required' && (
-            <Share2 className="w-16 h-16 text-[#7c5cff]" />
-          )}
-        </div>
-
-        <div className="mt-6 space-y-2">
-          <h2 className="text-2xl font-semibold tracking-tight text-white">
-            {status === 'processing' && 'Processing...'}
-            {status === 'success' && 'Success!'}
-            {status === 'error' && 'Error'}
-            {status === 'auth-required' && 'Login Required'}
-          </h2>
-          <p className="break-words text-sm leading-7 text-slate-400">{message}</p>
-        </div>
-
-        <div className="mt-8 grid gap-3 text-left sm:grid-cols-3">
-          {[
-            ['Save', 'Capture the URL'],
-            ['Enrich', 'AI cleans and tags'],
-            ['Store', 'Add to your vault'],
-          ].map(([title, text]) => (
-            <div key={title} className="metric-shell rounded-2xl text-left">
-              <div className="mb-2 inline-flex rounded-xl bg-white/10 p-2 text-[#27d7c4]">
-                <Sparkles className="h-4 w-4" />
-              </div>
-              <p className="text-sm font-semibold text-white">{title}</p>
-              <p className="text-sm text-slate-400">{text}</p>
-            </div>
-          ))}
-        </div>
-
-        {status === 'processing' && (
-          <div className="mt-8 h-1.5 w-full rounded-full bg-white/10">
-            <div className="h-1.5 w-[60%] animate-pulse rounded-full bg-gradient-to-r from-[#7c5cff] via-[#4d79ff] to-[#27d7c4]" />
-          </div>
-        )}
+    <div className="flex min-h-screen items-center justify-center bg-white px-4">
+      <div className="flex flex-col items-center gap-4 text-center">
+        <BrandMark compact />
+        <Loader2 className="h-7 w-7 animate-spin text-indigo-500" />
+        <p className="text-sm text-gray-500">Saving to Smriti…</p>
       </div>
     </div>
   );
