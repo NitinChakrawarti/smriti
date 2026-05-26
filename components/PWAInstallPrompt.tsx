@@ -49,7 +49,17 @@ export default function PWAInstallPrompt() {
       showTimer = setTimeout(() => setVisible(true), SHOW_DELAY_MS);
     };
 
+    // If the app gets installed via Chrome's own UI (mini-infobar or browser menu)
+    // before our banner fires, mark as done so the fallback timer doesn't show
+    // confusing "Add to Home screen" instructions for an already-installed app.
+    const onInstalled = () => {
+      clearTimeout(showTimer);
+      localStorage.setItem(DISMISSED_KEY, '1');
+      setVisible(false);
+    };
+
     window.addEventListener('beforeinstallprompt', onPrompt);
+    window.addEventListener('appinstalled', onInstalled);
 
     // Fallback timer: if the native event never fires (HTTP / IP / iOS / desktop)
     // still show manual instructions after the delay
@@ -66,6 +76,7 @@ export default function PWAInstallPrompt() {
     return () => {
       clearTimeout(showTimer);
       window.removeEventListener('beforeinstallprompt', onPrompt);
+      window.removeEventListener('appinstalled', onInstalled);
     };
   }, []);
 
@@ -73,7 +84,9 @@ export default function PWAInstallPrompt() {
     if (!deferredPrompt) return;
     await deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted' || outcome === 'dismissed') dismiss();
+    // 'appinstalled' will fire and call dismiss() on accept, but we dismiss
+    // immediately on dismiss too so the banner doesn't linger.
+    if (outcome === 'dismissed') dismiss();
   };
 
   const dismiss = () => {
