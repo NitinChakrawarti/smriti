@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { store } from '@/store';
+import { linkApi } from '@/services/api';
 
 function ServiceWorkerRegistrar() {
   useEffect(() => {
@@ -29,16 +30,21 @@ function ServiceWorkerRegistrar() {
         for (const item of pending) {
           if (item.retries > 4) continue; // give up after 5 attempts
           try {
-            const res = await fetch('/api/share/ingest', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ url: item.url, text: item.text, title: item.title, token }),
-            });
-            if (res.ok && item.id != null) {
+            if (!item.url && !item.text) {
+              if (item.id != null) await incrementRetry(item.id);
+              continue;
+            }
+
+            const url = item.url || item.text?.match(/(https?:\/\/[^\s]+)/)?.[0];
+            if (!url) {
+              if (item.id != null) await incrementRetry(item.id);
+              continue;
+            }
+
+            await linkApi.addLink(url, 'pwa-share');
+            if (item.id != null) {
               await markShareDone(item.id);
               notifySW('Saved to Smriti', item.url || item.text || 'Content saved');
-            } else if (item.id != null) {
-              await incrementRetry(item.id);
             }
           } catch {
             if (item.id != null) await incrementRetry(item.id).catch(() => {});

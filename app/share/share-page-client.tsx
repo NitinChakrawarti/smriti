@@ -82,7 +82,7 @@ export default function SharePageClient() {
     } catch (err: any) {
       if (!navigator.onLine) {
         // Queue for later
-        await enqueueShare({ url, title, text: undefined }).catch(() => {});
+        await enqueueShare({ url, title, text: undefined, token }).catch(() => {});
         requestBackgroundSync();
         onQueued();
       } else {
@@ -139,17 +139,35 @@ export default function SharePageClient() {
   function onSuccess(message: string) {
     dispatch(addToast({ message, type: 'success' }));
     notifySW('Saved to Smriti', message);
-    router.replace('/');
+    returnToPreviousApp();
   }
 
   function onQueued() {
     dispatch(addToast({ message: 'Queued — will save when online', type: 'info' }));
-    router.replace('/');
+    returnToPreviousApp();
   }
 
   function onError(message: string) {
     dispatch(addToast({ message, type: 'error' }));
     setTimeout(() => router.replace('/'), 2000);
+  }
+
+  function returnToPreviousApp() {
+    try {
+      window.close();
+    } catch {
+      // Ignore browsers that block closing the current window.
+    }
+
+    setTimeout(() => {
+      if (window.closed) return;
+
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        router.replace('/');
+      }
+    }, 50);
   }
 
   // Minimal loading UI — shown only for the brief moment before redirect

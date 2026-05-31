@@ -6,6 +6,7 @@ export interface ShareQueueItem {
   url?: string;
   text?: string;
   title?: string;
+  token?: string;
   status: 'pending' | 'processing' | 'done';
   addedAt: number;
   retries: number;

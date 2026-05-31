@@ -41,7 +41,12 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({ url: ingestUrl, source: 'pwa-share' }),
     });
 
-    const data = await response.json();
+    let data: any = {};
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
+    }
 
     if (!response.ok) {
       return NextResponse.json(
