@@ -8,8 +8,17 @@ export interface Link {
   category: Category;
   contentType: ContentType;
   thumbnail: string;
+  fileUrl?: string;
+  fileType?: 'pdf' | 'image' | null;
+  fileName?: string;
+  fileSize?: number;
   source: 'telegram' | 'web' | 'pwa-share';
   readStatus: boolean;
+  reminderAt?: string | null;
+  reminderSent?: boolean;
+  reminderDays?: number | null;
+  keep?: boolean;
+  expiresAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -30,14 +39,20 @@ export type ContentType =
   | 'documentation'
   | 'blog'
   | 'news'
+  | 'pdf'
+  | 'image'
+  | 'text'
   | 'other';
 
 export interface LinkFilters {
   category?: Category;
   tags?: string[];
   readStatus?: boolean;
+  search?: string;
   sortBy?: 'createdAt' | 'title';
   order?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
 }
 
 export interface ApiResponse<T> {

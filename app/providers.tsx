@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { Provider } from 'react-redux';
+import { ThemeProvider } from 'next-themes';
 import { store } from '@/store';
 import { linkApi } from '@/services/api';
 
@@ -73,8 +74,16 @@ function ServiceWorkerRegistrar() {
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
-      <ServiceWorkerRegistrar />
-      {children}
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        storageKey="smriti.theme"
+        disableTransitionOnChange
+      >
+        <ServiceWorkerRegistrar />
+        {children}
+      </ThemeProvider>
     </Provider>
   );
 }

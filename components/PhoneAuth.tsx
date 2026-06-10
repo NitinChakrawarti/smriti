@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { authApi } from '@/services/api';
-import { ArrowRight, Brain, Database, Loader2, MessageSquare, Phone, Shield, Sparkles } from 'lucide-react';
+import { ArrowRight, Loader2, Phone } from 'lucide-react';
 
 type Step = 'phone' | 'telegram' | 'otp' | 'name';
+
+const STEP_ORDER: Step[] = ['phone', 'telegram', 'otp', 'name'];
 
 export default function PhoneAuth() {
   const [step, setStep] = useState<Step>('phone');
@@ -130,69 +132,48 @@ export default function PhoneAuth() {
     }
   };
 
-  const stepIndex = step === 'phone' ? 0 : step === 'telegram' ? 1 : step === 'otp' ? 2 : 3;
+  const stepIndex = STEP_ORDER.indexOf(step);
+  const stepTitle = {
+    phone: 'Sign in',
+    telegram: 'Link Telegram',
+    otp: 'Enter the code',
+    name: 'One last thing',
+  }[step];
+
+  const stepHint = {
+    phone: 'We\'ll send a one-time code to your Telegram.',
+    telegram: 'Send /start to the bot to get your Telegram ID.',
+    otp: `Code sent to ${phoneNumber}.`,
+    name: 'What should we call you?',
+  }[step];
 
   return (
-    <section className="page-shell py-16 sm:py-20 lg:py-24">
-      <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-2 lg:items-start">
-
-        {/* Left: value props */}
-        <div className="space-y-6">
-          <span className="chip">
-            <MessageSquare className="h-3.5 w-3.5 text-indigo-500" />
-            Telegram OTP access
-          </span>
-          <h1 className="text-3xl font-semibold leading-tight tracking-tight text-gray-900 sm:text-4xl">
-            Sign in with a short, secure flow.
+    <section className="px-4 py-12 sm:py-16">
+      <div className="mx-auto w-full max-w-md">
+        <div className="mb-6 text-center">
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-slate-100">
+            {stepTitle}
           </h1>
-          <p className="text-base leading-relaxed text-gray-500">
-            Enter your phone number, verify the code, and return to your saved knowledge without extra steps.
-          </p>
-
-          <div className="grid gap-3 sm:grid-cols-3">
-            {[
-              [Brain,    'AI summaries',   'Clean, searchable context'],
-              [Database, 'Private storage', 'Your own vault'],
-              [Sparkles, 'Fast capture',   'Built for recall'],
-            ].map(([Icon, title, text]) => (
-              <div key={title as string} className="metric-shell">
-                <div className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
-                  <Icon className="h-4 w-4" />
-                </div>
-                <p className="text-sm font-semibold text-gray-900">{title as string}</p>
-                <p className="mt-1 text-xs text-gray-500">{text as string}</p>
-              </div>
-            ))}
-          </div>
+          <p className="mt-1.5 text-sm text-gray-500 dark:text-slate-400">{stepHint}</p>
         </div>
 
-        {/* Right: form */}
-        <div className="section-shell">
-          {/* Header */}
-          <div className="mb-6 flex items-center justify-between border-b border-gray-100 pb-5">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Secure access</p>
-              <h2 className="mt-1 text-xl font-semibold text-gray-900">Continue with OTP</h2>
-            </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
-              <Shield className="h-5 w-5" />
-            </div>
-          </div>
-
-          {/* Progress bar */}
+        <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900 sm:p-7">
+          {/* Progress */}
           <div className="mb-6 flex items-center gap-1.5">
-            {['phone', 'telegram', 'otp', 'name'].map((item, index) => (
+            {STEP_ORDER.map((item, index) => (
               <div
                 key={item}
-                className={`h-1.5 flex-1 rounded-full transition-colors ${
-                  index <= stepIndex ? 'bg-indigo-500' : 'bg-gray-200'
+                className={`h-1 flex-1 rounded-full transition-colors ${
+                  index <= stepIndex
+                    ? 'bg-indigo-500 dark:bg-indigo-400'
+                    : 'bg-gray-200 dark:bg-slate-800'
                 }`}
               />
             ))}
           </div>
 
           {error && (
-            <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
               {error}
             </div>
           )}
@@ -200,29 +181,31 @@ export default function PhoneAuth() {
           {step === 'phone' && (
             <form onSubmit={handlePhoneSubmit} className="space-y-4">
               <div>
-                <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-gray-700">
-                  Phone Number
+                <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
+                  Phone number
                 </label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
                   <input
                     id="phone"
                     type="tel"
+                    inputMode="tel"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="+1234567890"
+                    placeholder="+1 234 567 890"
                     className="input-base pl-9"
                     required
                     disabled={loading}
                     autoFocus
                   />
                 </div>
-                <p className="mt-1.5 text-xs text-gray-400">Include the country code.</p>
+                <p className="mt-1.5 text-xs text-gray-500 dark:text-slate-500">
+                  Include the country code.
+                </p>
               </div>
               <button type="submit" className="btn-primary w-full" disabled={loading}>
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
                 Continue
-                {!loading && <ArrowRight className="h-4 w-4" />}
               </button>
             </form>
           )}
@@ -230,12 +213,13 @@ export default function PhoneAuth() {
           {step === 'telegram' && (
             <form onSubmit={handleTelegramSubmit} className="space-y-4">
               <div>
-                <label htmlFor="telegram" className="mb-1.5 block text-sm font-medium text-gray-700">
+                <label htmlFor="telegram" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
                   Telegram ID
                 </label>
                 <input
                   id="telegram"
                   type="text"
+                  inputMode="numeric"
                   value={telegramId}
                   onChange={(e) => setTelegramId(e.target.value)}
                   placeholder="123456789"
@@ -244,18 +228,22 @@ export default function PhoneAuth() {
                   disabled={loading}
                   autoFocus
                 />
+                <p className="mt-1.5 text-xs text-gray-500 dark:text-slate-500">
+                  Open the bot, send /myid, paste the number here.
+                </p>
               </div>
               {devOTP && (
-                <div className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
+                <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2.5 text-sm text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300">
                   Dev OTP: <span className="font-semibold">{devOTP}</span>
                 </div>
               )}
               <div className="flex gap-2">
-                <button type="button" onClick={() => setStep('phone')} className="btn-secondary flex-1" disabled={loading}>Back</button>
+                <button type="button" onClick={() => setStep('phone')} className="btn-secondary flex-1" disabled={loading}>
+                  Back
+                </button>
                 <button type="submit" className="btn-primary flex-1" disabled={loading}>
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
                   Continue
-                  {!loading && <ArrowRight className="h-4 w-4" />}
                 </button>
               </div>
             </form>
@@ -264,27 +252,31 @@ export default function PhoneAuth() {
           {step === 'otp' && (
             <form onSubmit={handleOTPSubmit} className="space-y-4">
               <div>
-                <label htmlFor="otp" className="mb-1.5 block text-sm font-medium text-gray-700">
-                  One-time code
+                <label htmlFor="otp" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
+                  6-digit code
                 </label>
                 <input
                   id="otp"
                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={6}
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                   placeholder="123456"
-                  className="input-base"
+                  className="input-base text-center text-lg tracking-[0.5em]"
                   required
                   disabled={loading}
                   autoFocus
                 />
               </div>
               <div className="flex gap-2">
-                <button type="button" onClick={() => setStep('phone')} className="btn-secondary flex-1" disabled={loading}>Back</button>
+                <button type="button" onClick={() => setStep('phone')} className="btn-secondary flex-1" disabled={loading}>
+                  Back
+                </button>
                 <button type="submit" className="btn-primary flex-1" disabled={loading}>
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
                   Verify
-                  {!loading && <ArrowRight className="h-4 w-4" />}
                 </button>
               </div>
             </form>
@@ -293,7 +285,7 @@ export default function PhoneAuth() {
           {step === 'name' && (
             <form onSubmit={handleNameSubmit} className="space-y-4">
               <div>
-                <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-gray-700">
+                <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
                   Your name
                 </label>
                 <input
@@ -301,7 +293,7 @@ export default function PhoneAuth() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Your name"
+                  placeholder="Jane Doe"
                   className="input-base"
                   required
                   disabled={loading}
@@ -309,20 +301,20 @@ export default function PhoneAuth() {
                 />
               </div>
               <button type="submit" className="btn-primary w-full" disabled={loading}>
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Complete signup
-                {!loading && <ArrowRight className="h-4 w-4" />}
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+                Finish
               </button>
             </form>
           )}
-
-          <div className="mt-6 border-t border-gray-100 pt-5 text-center">
-            <p className="text-sm text-gray-500">Need a new account?</p>
-            <Link href="/register" className="btn-secondary mt-3 w-full">
-              Create account
-            </Link>
-          </div>
         </div>
+
+        <p className="mt-6 text-center text-xs text-gray-500 dark:text-slate-500">
+          Need help? Open the bot from{' '}
+          <Link href="/landing" className="underline-offset-2 hover:underline">
+            the home page
+          </Link>
+          .
+        </p>
       </div>
     </section>
   );

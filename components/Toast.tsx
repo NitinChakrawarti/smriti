@@ -5,17 +5,18 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { removeToast } from '@/store/slices/uiSlice';
 import { CheckCircle, XCircle, Info, X } from 'lucide-react';
 
+const TOAST_DURATION_MS = 5000;
+
 export default function Toast() {
   const dispatch = useAppDispatch();
   const { toasts } = useAppSelector((state) => state.ui);
 
   useEffect(() => {
-    toasts.forEach((toast) => {
-      const timer = setTimeout(() => {
-        dispatch(removeToast(toast.id));
-      }, 5000);
-      return () => clearTimeout(timer);
-    });
+    if (toasts.length === 0) return;
+    const timers = toasts.map((toast) =>
+      setTimeout(() => dispatch(removeToast(toast.id)), TOAST_DURATION_MS),
+    );
+    return () => timers.forEach(clearTimeout);
   }, [toasts, dispatch]);
 
   if (toasts.length === 0) return null;
@@ -26,19 +27,21 @@ export default function Toast() {
         <div
           key={toast.id}
           className="surface-strong animate-fade-in-up rounded-xl px-4 py-3"
+          role="status"
         >
           <div className="flex items-start gap-3">
-            <div className="shrink-0 mt-0.5">
-              {toast.type === 'success' && <CheckCircle className="w-4 h-4 text-green-500" />}
-              {toast.type === 'error'   && <XCircle     className="w-4 h-4 text-red-500"   />}
-              {toast.type === 'info'    && <Info        className="w-4 h-4 text-indigo-500" />}
+            <div className="mt-0.5 shrink-0">
+              {toast.type === 'success' && <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />}
+              {toast.type === 'error' && <XCircle className="h-4 w-4 text-red-500 dark:text-red-400" />}
+              {toast.type === 'info' && <Info className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />}
             </div>
-            <p className="flex-1 text-sm text-gray-700">{toast.message}</p>
+            <p className="flex-1 text-sm text-gray-700 dark:text-slate-200">{toast.message}</p>
             <button
               onClick={() => dispatch(removeToast(toast.id))}
-              className="shrink-0 rounded-md p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              aria-label="Dismiss"
+              className="shrink-0 rounded-md p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>

@@ -49,7 +49,7 @@ export default function AboutPage() {
               return (
                 <div
                   key={item.title}
-                  className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md"
+                  className="group rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md"
                 >
                   <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 transition-colors group-hover:bg-indigo-100">
                     <Icon className="h-5 w-5" />
@@ -62,7 +62,7 @@ export default function AboutPage() {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="mb-4 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-indigo-500" />
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
@@ -75,7 +75,7 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
               <div className="mb-4 flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-indigo-500" />
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">

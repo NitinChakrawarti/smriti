@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { MessageSquare } from 'lucide-react';
 import BrandMark from './BrandMark';
+import ThemeToggle from './ThemeToggle';
 
 const TELEGRAM_BOT_URL = 'https://t.me/Link_space_bot';
 
@@ -13,30 +14,25 @@ type PublicShellProps = {
 export default function PublicShell({ children }: PublicShellProps) {
   return (
     <div className="app-shell">
-      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white">
+      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white dark:border-slate-800 dark:bg-slate-950">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <Link href="/landing" aria-label="Smriti home">
             <BrandMark compact />
           </Link>
 
-          <nav className="hidden items-center gap-2 sm:flex">
-            <Link href="/landing" className="btn-ghost">
-              Home
-            </Link>
-            <Link href="/about" className="btn-ghost">
-              About
-            </Link>
+          <nav className="hidden items-center gap-1 sm:flex">
+            <Link href="/landing" className="btn-ghost">Home</Link>
+            <Link href="/about" className="btn-ghost">About</Link>
           </nav>
 
           <div className="flex items-center gap-2">
-            <Link href="/login" className="btn-secondary">
-              Login
-            </Link>
+            <ThemeToggle />
+            <Link href="/login" className="btn-secondary">Sign in</Link>
             <a
               href={TELEGRAM_BOT_URL}
               target="_blank"
               rel="noreferrer"
-              className="btn-primary"
+              className="btn-primary hidden sm:inline-flex"
             >
               <MessageSquare className="h-4 w-4" />
               Open bot
@@ -47,27 +43,20 @@ export default function PublicShell({ children }: PublicShellProps) {
 
       <main>{children}</main>
 
-      <footer className="border-t border-gray-200 px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between">
+      <footer className="border-t border-gray-200 px-4 py-8 sm:px-6 lg:px-8 dark:border-slate-800">
+        <div className="mx-auto flex max-w-7xl flex-col items-start gap-4 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between dark:text-slate-400">
           <BrandMark compact />
-          <div className="flex flex-col gap-2 sm:items-end">
-            <div className="flex items-center gap-3">
-              <Link href="/landing" className="transition-colors hover:text-gray-900">
-                Home
-              </Link>
-              <Link href="/about" className="transition-colors hover:text-gray-900">
-                About
-              </Link>
-              <a
-                href={TELEGRAM_BOT_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="transition-colors hover:text-gray-900"
-              >
-                Telegram bot
-              </a>
-            </div>
-            <p>© 2026 Smriti. Knowledge that stays with you.</p>
+          <div className="flex items-center gap-4">
+            <Link href="/about" className="hover:text-gray-900 dark:hover:text-slate-200">About</Link>
+            <a
+              href={TELEGRAM_BOT_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-gray-900 dark:hover:text-slate-200"
+            >
+              Telegram bot
+            </a>
+            <span className="text-xs">© {new Date().getFullYear()} Smriti</span>
           </div>
         </div>
       </footer>

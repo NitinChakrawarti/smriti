@@ -50,6 +50,12 @@ export const authApi = {
     return response.data.data;
   },
 
+  // Update current user's profile (e.g. email for reminders)
+  updateMe: async (payload: { email?: string; name?: string }) => {
+    const response = await api.patch('/auth/me', payload);
+    return response.data.data;
+  },
+
   // Legacy methods (kept for backward compatibility)
   register: async (name: string, email: string, password: string) => {
     const response = await api.post('/auth/register', { name, email, password });
@@ -69,11 +75,29 @@ export const linkApi = {
     return response.data.data!;
   },
 
+  // Save pasted text
+  addText: async (text: string, source: 'web' = 'web'): Promise<Link> => {
+    const response = await api.post<ApiResponse<Link>>('/links', { text, source });
+    return response.data.data!;
+  },
+
+  // Upload a file (pdf/image) via multipart/form-data
+  addFile: async (file: File, source: 'web' = 'web'): Promise<Link> => {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('source', source);
+    const response = await api.post<ApiResponse<Link>>('/links', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data.data!;
+  },
+
   // Get all links with filters
   getLinks: async (params?: {
     category?: string;
     tags?: string;
     readStatus?: boolean;
+    search?: string;
     sortBy?: string;
     order?: string;
     page?: number;
@@ -101,6 +125,24 @@ export const linkApi = {
   // Delete link
   deleteLink: async (id: string): Promise<void> => {
     await api.delete(`/links/${id}`);
+  },
+
+  // Set a reminder (days from now)
+  setReminder: async (id: string, days: number): Promise<Link> => {
+    const response = await api.patch<ApiResponse<Link>>(`/links/${id}/reminder`, { days });
+    return response.data.data!;
+  },
+
+  // Clear a reminder
+  clearReminder: async (id: string): Promise<Link> => {
+    const response = await api.delete<ApiResponse<Link>>(`/links/${id}/reminder`);
+    return response.data.data!;
+  },
+
+  // Toggle keep (pin) flag
+  setKeep: async (id: string, keep: boolean): Promise<Link> => {
+    const response = await api.patch<ApiResponse<Link>>(`/links/${id}/keep`, { keep });
+    return response.data.data!;
   },
 
   // Get statistics

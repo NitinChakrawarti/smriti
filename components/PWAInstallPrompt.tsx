@@ -99,23 +99,23 @@ export default function PWAInstallPrompt() {
   // ── Copy per platform ─────────────────────────────────────────────────────
   const copy: Record<Platform, { icon: React.ReactNode; title: string; body: React.ReactNode; cta?: string }> = {
     'android-native': {
-      icon:  <Download className="h-5 w-5 text-indigo-600" />,
+      icon:  <Download className="h-5 w-5 text-indigo-600 dark:text-indigo-300" />,
       title: 'Install Smriti',
       body:  'Share links, images and files directly from any app — one tap away.',
       cta:   'Install',
     },
     'android-manual': {
-      icon:  <MoreVertical className="h-5 w-5 text-indigo-600" />,
+      icon:  <MoreVertical className="h-5 w-5 text-indigo-600 dark:text-indigo-300" />,
       title: 'Add to Home Screen',
-      body:  <>Tap <strong className="font-medium text-gray-700">⋮</strong> in Chrome, then choose <strong className="font-medium text-gray-700">"Add to Home screen"</strong> to share from any app.</>,
+      body:  <>Tap <strong className="font-medium text-gray-700 dark:text-slate-200">⋮</strong> in Chrome, then choose <strong className="font-medium text-gray-700 dark:text-slate-200">"Add to Home screen"</strong> to share from any app.</>,
     },
     'ios': {
-      icon:  <Share2 className="h-5 w-5 text-indigo-600" />,
+      icon:  <Share2 className="h-5 w-5 text-indigo-600 dark:text-indigo-300" />,
       title: 'Add to Home Screen',
-      body:  <>Tap <strong className="font-medium text-gray-700">Share</strong> at the bottom of Safari, then <strong className="font-medium text-gray-700">"Add to Home Screen"</strong>.</>,
+      body:  <>Tap <strong className="font-medium text-gray-700 dark:text-slate-200">Share</strong> at the bottom of Safari, then <strong className="font-medium text-gray-700 dark:text-slate-200">"Add to Home Screen"</strong>.</>,
     },
     'desktop-manual': {
-      icon:  <Download className="h-5 w-5 text-indigo-600" />,
+      icon:  <Download className="h-5 w-5 text-indigo-600 dark:text-indigo-300" />,
       title: 'Install Smriti',
       body:  'Click the install icon in your browser address bar to add Smriti as an app.',
     },
@@ -130,21 +130,21 @@ export default function PWAInstallPrompt() {
       aria-label="Install Smriti"
       className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 animate-fade-in-up sm:bottom-6"
     >
-      <div className="surface-strong rounded-2xl px-5 py-4">
+      <div className="surface-strong rounded-xl px-5 py-4">
         <div className="flex items-start gap-3">
-          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50">
+          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-500/15">
             {icon}
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-gray-900">{title}</p>
-            <p className="mt-0.5 text-xs leading-relaxed text-gray-500">{body}</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">{title}</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-gray-500 dark:text-slate-400">{body}</p>
           </div>
 
           <button
             onClick={dismiss}
             aria-label="Dismiss"
-            className="mt-0.5 shrink-0 rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+            className="mt-0.5 shrink-0 rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"
           >
             <X className="h-4 w-4" />
           </button>
@@ -165,7 +165,7 @@ export default function PWAInstallPrompt() {
         {platform !== 'android-native' && (
           <button
             onClick={dismiss}
-            className="mt-3 w-full text-center text-xs text-gray-400 underline-offset-2 hover:text-gray-600 hover:underline"
+            className="mt-3 w-full text-center text-xs text-gray-400 underline-offset-2 hover:text-gray-600 hover:underline dark:text-slate-500 dark:hover:text-slate-300"
           >
             Got it
           </button>
