@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchStats } from '@/store/slices/linksSlice';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
+import InstallBanner from '@/components/InstallBanner';
 import AddLinkModal from '@/components/AddLinkModal';
 import Toast from '@/components/Toast';
 import {
@@ -92,6 +93,10 @@ export default function DashboardPage() {
         }`}
       >
         <Header />
+
+        <div className="content-shell pt-4">
+          <InstallBanner />
+        </div>
 
         <main className="flex-1 overflow-y-auto">
           <div className="content-shell space-y-8 pb-12">
